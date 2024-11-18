@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minigolf Tuloskortti</title>
+    <style>
+        body {
+            font-family: "Comic Sans MS", "Arial Rounded MT Bold", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            color: #8B0000;
+        }
+        h1 {
+            text-align: center;
+            color: #8B0000;
+            text-shadow: 2px 2px 4px #000;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px auto;
+            background-color: #1a1a1a;
+            color: white;
+            max-width: 900px;
+            table-layout: fixed;
+        }
+        th, td {
+            border: 1px solid #444;
+            text-align: center;
+            padding: 10px;
+        }
+        th {
+            background-color: #8B0000;
+            color: white;
+            font-weight: bold;
+        }
+        td input[type="number"], th input[type="text"] {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+            background-color: #8B0000;
+            color: white;
+            border: 1px solid #ffffff;
+            border-radius: 3px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #8B0000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #a11b1b;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Minigolf Tuloskortti</h1>
+
+    <div class="controls">
+        <button onclick="addPlayer()">Lis&auml;&auml; Pelaaja</button>
+        <button onclick="clearScores()">Tyhjenn&auml; Tulokset</button>
+    </div>
+
+    <table id="scoreTable">
+        <thead>
+            <tr>
+                <th>Rata</th>
+                <th id="playerRow" colspan="4">Pelaajat</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Holes and scores will be dynamically added here -->
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>Yhteens&auml;</th>
+                <!-- Totals for players will be dynamically added here -->
+            </tr>
+        </tfoot>
+    </table>
+
+    <script>
+        const scoreTable = document.getElementById('scoreTable');
+        const playerRow = document.getElementById('playerRow');
+        const tbody = scoreTable.querySelector('tbody');
+        const tfoot = scoreTable.querySelector('tfoot');
+        let playerCount = 0;
+
+        function addPlayer() {
+            if (playerCount >= 6) {
+                alert('Enimm&auml;ism&auml;&auml;r&auml; pelaajia on 6.');
+                return;
+            }
+
+            playerCount++;
+
+            // Add an input field for the player's name
+            const playerHeader = document.createElement('th');
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.value = `Pelaaja ${playerCount}`;
+            nameInput.oninput = () => {
+                playerHeader.title = nameInput.value; // Update tooltip
+            };
+            playerHeader.appendChild(nameInput);
+
+            // Add a remove button
+            const removeButton = document.createElement('button');
+            removeButton.textContent = 'Poista';
+            removeButton.style.marginTop = '5px';
+            removeButton.onclick = () => removePlayer(playerHeader, playerCount - 1);
+            playerHeader.appendChild(removeButton);
+
+            playerRow.colSpan = Math.max(playerCount, 4); // Ensure spacing for alignment
+            playerRow.appendChild(playerHeader);
+
+            // Add a column for the player's scores for all holes
+            for (let i = 0; i < 9; i++) {
+                let row;
+                if (tbody.rows[i]) {
+                    row = tbody.rows[i];
+                } else {
+                    // Create a new row for the hole if it doesn't exist
+                    row = document.createElement('tr');
+                    const holeNumberCell = document.createElement('th');
+                    holeNumberCell.textContent = `${i + 1}`;
+                    row.appendChild(holeNumberCell);
+                    tbody.appendChild(row);
+                }
+
+                // Add the player's input field to the row
+                const scoreCell = document.createElement('td');
+                const scoreInput = document.createElement('input');
+                scoreInput.type = 'number';
+                scoreInput.min = '0';
+                scoreInput.value = '0';
+                scoreInput.oninput = updateTotals; // Update totals whenever input changes
+                scoreCell.appendChild(scoreInput);
+                row.appendChild(scoreCell);
+            }
+
+            // Add a total cell for the player in the footer
+            const totalCell = document.createElement('td');
+            totalCell.textContent = '0'; // Initial total is 0
+            tfoot.rows[0].appendChild(totalCell);
+        }
+
+        function updateTotals() {
+            const totalRow = tfoot.rows[0];
+            for (let i = 0; i < playerCount; i++) {
+                let total = 0;
+                for (let j = 0; j < 9; j++) {
+                    const input = tbody.rows[j].cells[i + 1]?.querySelector('input');
+                    total += input ? parseInt(input.value || '0', 10) : 0;
+                }
+                totalRow.cells[i + 1].textContent = total;
+            }
+        }
+
+        function removePlayer(playerHeader, index) {
+            // Remove player header
+            playerHeader.remove();
+            
+            // Remove player's scores from all holes
+            for (let i = 0; i < 9; i++) {
+                const row = tbody.rows[i];
+                if (row && row.cells[index + 1]) {
+                    row.cells[index + 1].remove();
+                }
+            }
+
+            // Remove player's total cell
+            if (tfoot.rows[0].cells[index + 1]) {
+                tfoot.rows[0].cells[index + 1].remove();
+            }
+
+            playerCount--;
+            updateTotals(); // Recalculate totals
+        }
+
+        function clearScores() {
+            const inputs = scoreTable.querySelectorAll('input[type="number"]');
+            inputs.forEach(input => input.value = '0');
+            updateTotals(); // Reset totals as well
+        }
+    </script>
+
+</body>
+</html>
