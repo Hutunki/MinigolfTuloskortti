@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minigolf Tuloskortti</title>
+    <style>
+        body {
+            font-family: "Comic Sans MS", "Arial Rounded MT Bold", Arial, sans-serif; /* Playful font */
+            margin: 0;
+            padding: 0;
+            background-color: black; /* Black background */
+            color: #8B0000; /* Wine red text for contrast */
+        }
+        h1 {
+            text-align: center;
+            color: #8B0000; /* Wine red for header */
+            text-shadow: 2px 2px 4px #000; /* Shadow for visibility */
+            font-weight: bold; /* Thicker font */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px auto;
+            background-color: #1a1a1a; /* Dark gray for table background */
+            color: white; /* White text for readability */
+            max-width: 900px;
+        }
+        th, td {
+            border: 1px solid #444; /* Darker gray borders */
+            text-align: center;
+            padding: 10px;
+        }
+        th {
+            background-color: #8B0000; /* Wine red for headers */
+            color: white; /* White text for readability */
+            font-weight: bold; /* Thicker font */
+        }
+        td input[type="text"], td input[type="number"] {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+            background-color: #8B0000; /* Wine red for input fields */
+            color: white; /* White text for readability */
+            border: 1px solid #ffffff; /* White border for contrast */
+            border-radius: 3px;
+            font-weight: bold; /* Thicker font */
+        }
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #8B0000; /* Wine red for buttons */
+            color: white; /* White text on buttons */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold; /* Thicker font */
+        }
+        button:hover {
+            background-color: #a11b1b; /* Slightly lighter wine red on hover */
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Minigolf Tuloskortti</h1>
+
+    <div class="controls">
+        <button onclick="addPlayer()">Lis&#228;&#228; Pelaaja</button>
+        <button onclick="clearScores()">Tyhjenn&#228; Tulokset</button>
+    </div>
+
+    <table id="scoreTable">
+        <thead>
+            <tr>
+                <th>Pelaajan Nimi</th>
+                <th>V&#228;yl&#228; 1</th>
+                <th>V&#228;yl&#228; 2</th>
+                <th>V&#228;yl&#228; 3</th>
+                <th>V&#228;yl&#228; 4</th>
+                <th>V&#228;yl&#228; 5</th>
+                <th>V&#228;yl&#228; 6</th>
+                <th>V&#228;yl&#228; 7</th>
+                <th>V&#228;yl&#228; 8</th>
+                <th>V&#228;yl&#228; 9</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Players will be added dynamically here -->
+        </tbody>
+    </table>
+
+    <script>
+        const scoreTable = document.getElementById('scoreTable').querySelector('tbody');
+        let playerCount = 0;
+
+        function addPlayer() {
+            if (playerCount >= 6) {
+                alert('Enimm&#228;ism&#228;&#228;r&#228; pelaajia on 6.');
+                return;
+            }
+
+            playerCount++;
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="text" placeholder="Pelaaja ${playerCount}" /></td>
+                <td><input type="number" min="0" /></td>
+                <td><input type="number" min="0" /></td>
+                <td><input type="number" min="0" /></td>
+                <td><input type="number" min="0" /></td>
+                <td><input type="number" min="0" /></td>
+                <td><input type="number" min="0" /></td>
+                <td><input type="number" min="0" /></td>
+                <td><input type="number" min="0" /></td>
+                <td><input type="number" min="0" /></td>
+            `;
+            scoreTable.appendChild(row);
+        }
+
+        function clearScores() {
+            const rows = scoreTable.querySelectorAll('tr');
+            rows.forEach(row => {
+                const inputs = row.querySelectorAll('input[type="number"]');
+                inputs.forEach(input => input.value = '');
+            });
+        }
+    </script>
+
+</body>
+</html>
